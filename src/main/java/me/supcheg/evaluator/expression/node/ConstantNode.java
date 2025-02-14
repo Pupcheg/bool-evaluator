@@ -1,0 +1,12 @@
+package me.supcheg.evaulator.expression.node;
+
+import lombok.Data;
+
+@Data
+public class ConstantNode implements ScalarNode {
+    private final int value;
+
+    public Object value() {
+        return value;
+    }
+}
