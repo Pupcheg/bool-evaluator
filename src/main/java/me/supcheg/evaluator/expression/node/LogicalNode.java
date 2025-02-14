@@ -1,6 +1,6 @@
-package me.supcheg.evaulator.expression.node;
+package me.supcheg.evaluator.expression.node;
 
-import me.supcheg.evaulator.expression.Operation;
+import me.supcheg.evaluator.expression.Operation;
 
 public interface LogicalNode extends Node {
     Node getLeft();

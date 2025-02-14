@@ -1,7 +1,7 @@
-package me.supcheg.evaulator.expression;
+package me.supcheg.evaluator.expression;
 
 import lombok.Data;
-import me.supcheg.evaulator.expression.node.Node;
+import me.supcheg.evaluator.expression.node.Node;
 
 @Data
 public class ExpressionTree {

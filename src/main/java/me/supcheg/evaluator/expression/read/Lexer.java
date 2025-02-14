@@ -1,4 +1,4 @@
-package me.supcheg.evaulator.expression.read;
+package me.supcheg.evaluator.expression.read;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,7 +46,7 @@ public class Lexer {
                 continue;
             }
 
-            throw new IllegalArgumentException("Unrecognized token: " + ch + " at position " + pos);
+            throw new LexerException(String.format("Unrecognized token '%s' at position %d", ch, pos));
         }
 
         return tokens;

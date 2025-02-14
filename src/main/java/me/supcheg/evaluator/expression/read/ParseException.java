@@ -1,4 +1,7 @@
 package me.supcheg.evaluator.expression.read;
 
-public class ParseException {
+import lombok.experimental.StandardException;
+
+@StandardException
+public class ParseException extends RuntimeException {
 }

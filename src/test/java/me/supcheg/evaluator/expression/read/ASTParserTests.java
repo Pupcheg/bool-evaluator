@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ParserTests {
+class ASTParserTests {
     @Test
     void parseTest() {
         assertEquals(
@@ -39,7 +39,7 @@ class ParserTests {
                                 )
                         )
                 ),
-                new Parser(
+                new ASTParser(
                         List.of(
                                 new Token(TokenType.VARIABLE, "A"),
                                 new Token(TokenType.GREATER, ">"),
@@ -57,11 +57,5 @@ class ParserTests {
                         )
                 ).parse()
         );
-    }
-
-
-    @Test
-    void name() {
-        System.out.println(new Parser(new Lexer("5>A").listTokens()).parse());
     }
 }

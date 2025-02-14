@@ -1,6 +1,6 @@
-package me.supcheg.evaulator.expression.walk;
+package me.supcheg.evaluator.expression.walk;
 
-import me.supcheg.evaulator.expression.ExpressionTree;
+import me.supcheg.evaluator.expression.ExpressionTree;
 
 public interface ExpressionTreeWalker {
     void walk(ExpressionTree tree, ExpressionTreeVisitor visitor);

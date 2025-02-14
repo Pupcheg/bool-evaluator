@@ -1,4 +1,4 @@
-package me.supcheg.evaulator.expression.read;
+package me.supcheg.evaluator.expression.read;
 
 public enum TokenType {
     VARIABLE,

@@ -1,4 +1,4 @@
-package me.supcheg.evaulator.expression;
+package me.supcheg.evaluator.expression;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

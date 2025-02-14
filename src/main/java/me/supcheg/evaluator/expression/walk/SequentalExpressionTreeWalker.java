@@ -1,9 +1,9 @@
-package me.supcheg.evaulator.expression.walk;
+package me.supcheg.evaluator.expression.walk;
 
-import me.supcheg.evaulator.expression.ExpressionTree;
-import me.supcheg.evaulator.expression.node.ComparisonNode;
-import me.supcheg.evaulator.expression.node.ExpressionNode;
-import me.supcheg.evaulator.expression.node.Node;
+import me.supcheg.evaluator.expression.ExpressionTree;
+import me.supcheg.evaluator.expression.node.ComparisonNode;
+import me.supcheg.evaluator.expression.node.ExpressionNode;
+import me.supcheg.evaluator.expression.node.Node;
 
 public class SequentalExpressionTreeWalker implements ExpressionTreeWalker {
     @Override

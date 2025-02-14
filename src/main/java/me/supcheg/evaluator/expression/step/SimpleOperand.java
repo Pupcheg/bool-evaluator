@@ -1,4 +1,8 @@
 package me.supcheg.evaluator.expression.step;
 
-public class ConstantStepVariable {
+import lombok.Data;
+
+@Data
+public class SimpleOperand implements Operand {
+    private final String value;
 }

@@ -1,4 +1,7 @@
 package me.supcheg.evaluator.expression.read;
 
-public class LexerExeption {
+import lombok.experimental.StandardException;
+
+@StandardException
+public class LexerException extends RuntimeException {
 }

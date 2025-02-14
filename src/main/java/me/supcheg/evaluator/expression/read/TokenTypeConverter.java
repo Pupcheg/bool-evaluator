@@ -1,6 +1,6 @@
-package me.supcheg.evaulator.expression.read;
+package me.supcheg.evaluator.expression.read;
 
-import me.supcheg.evaulator.expression.Operation;
+import me.supcheg.evaluator.expression.Operation;
 
 public class TokenTypeConverter {
     public Operation toOperation(TokenType type) {

@@ -7,17 +7,18 @@ import me.supcheg.evaluator.expression.node.ComparisonNode;
 import me.supcheg.evaluator.expression.node.ConstantNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.LogicalNode;
+import me.supcheg.evaluator.expression.node.ScalarNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
 
 import java.util.List;
 
 @RequiredArgsConstructor
-public class Parser {
+public class ASTParser {
     private final TokenTypeConverter tokenTypeConverter;
     private final List<Token> tokens;
     private int pos = 0;
 
-    public Parser(List<Token> tokens) {
+    public ASTParser(List<Token> tokens) {
         this(new TokenTypeConverter(), tokens);
     }
 
@@ -36,21 +37,21 @@ public class Parser {
     }
 
     private LogicalNode lookAND() {
-        LogicalNode left = lookLOGICAL();
+        LogicalNode left = lookLogical();
         while (isInBounds() && peek().getType() == TokenType.AND) {
             Token operation = next();
-            LogicalNode right = lookLOGICAL();
+            LogicalNode right = lookLogical();
             left = new ExpressionNode(left, tokenTypeConverter.toOperation(operation.getType()), right);
         }
         return left;
     }
 
-    private LogicalNode lookLOGICAL() {
+    private LogicalNode lookLogical() {
         Token token = peek();
         if (token.getType() == TokenType.OPEN_BRACKET) {
-            next();
+            next(TokenType.OPEN_BRACKET);
             LogicalNode node = lookOR();
-            next();
+            next(TokenType.CLOSE_BRACKET);
             return node;
         } else if (token.getType() == TokenType.VARIABLE || token.getType() == TokenType.CONSTANT) {
             return nextComparison();
@@ -60,23 +61,25 @@ public class Parser {
     }
 
     private ComparisonNode nextComparison() {
+        ScalarNode left;
+        Operation operation;
+        ScalarNode right;
+
         if (peek().getType() == TokenType.VARIABLE) {
-            return new ComparisonNode(
-                    nextVariable(),
-                    nextOperation(),
-                    nextConstant()
-            );
+            left = nextVariable();
+            operation = nextOperation();
+            right = nextConstant();
         } else {
-            return new ComparisonNode(
-                    nextConstant(),
-                    nextOperation(),
-                    nextVariable()
-            );
+            left = nextConstant();
+            right = nextVariable();
+            operation = nextOperation();
         }
+
+        return new ComparisonNode(left, operation, right);
     }
 
     private VariableNode nextVariable() {
-        return new VariableNode(next().getLexeme().charAt(0));
+        return new VariableNode(next(TokenType.VARIABLE).getLexeme().charAt(0));
     }
 
     private Operation nextOperation() {
@@ -84,7 +87,7 @@ public class Parser {
     }
 
     private ConstantNode nextConstant() {
-        return new ConstantNode(Integer.parseInt(next().getLexeme()));
+        return new ConstantNode(Integer.parseInt(next(TokenType.CONSTANT).getLexeme()));
     }
 
     private boolean isInBounds() {
@@ -97,6 +100,14 @@ public class Parser {
         }
 
         return tokens.get(pos);
+    }
+
+    private Token next(TokenType expected) {
+        Token token = next();
+        if (token.getType() != expected) {
+            throw new ParseException("Expected " + expected + " but got " + token);
+        }
+        return token;
     }
 
     private Token next() {

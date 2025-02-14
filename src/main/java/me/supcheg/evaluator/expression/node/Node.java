@@ -1,4 +1,4 @@
-package me.supcheg.evaulator.expression.node;
+package me.supcheg.evaluator.expression.node;
 
 public interface Node {
 }

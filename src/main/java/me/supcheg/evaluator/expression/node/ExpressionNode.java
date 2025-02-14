@@ -1,11 +1,11 @@
-package me.supcheg.evaulator.expression.node;
+package me.supcheg.evaluator.expression.node;
 
 import lombok.Data;
-import me.supcheg.evaulator.expression.Operation;
+import me.supcheg.evaluator.expression.Operation;
 
 @Data
 public class ExpressionNode implements LogicalNode {
-    private final Node left;
+    private final LogicalNode left;
     private final Operation operation;
-    private final Node right;
+    private final LogicalNode right;
 }
