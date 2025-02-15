@@ -9,6 +9,9 @@ import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.LogicalNode;
 import me.supcheg.evaluator.expression.node.ScalarNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
+import me.supcheg.evaluator.expression.read.exception.SyntaxException;
+import me.supcheg.evaluator.expression.read.exception.UnexpectedTokenException;
+import me.supcheg.evaluator.expression.read.exception.WrongTokenException;
 import me.supcheg.evaluator.expression.read.token.Token;
 import me.supcheg.evaluator.expression.read.token.TokenType;
 import me.supcheg.evaluator.expression.read.token.TokenTypeConverter;
@@ -21,11 +24,11 @@ public class ASTParser {
     private final List<Token> tokens;
     private int pos = 0;
 
-    public ExpressionTree parse() {
+    public ExpressionTree parse() throws SyntaxException {
         return new ExpressionTree(lookOR());
     }
 
-    private LogicalNode lookOR() {
+    private LogicalNode lookOR() throws SyntaxException {
         LogicalNode left = lookAND();
         while (isInBounds() && peek().getType() == TokenType.OR) {
             Token operation = next();
@@ -35,7 +38,7 @@ public class ASTParser {
         return left;
     }
 
-    private LogicalNode lookAND() {
+    private LogicalNode lookAND() throws SyntaxException {
         LogicalNode left = lookLogical();
         while (isInBounds() && peek().getType() == TokenType.AND) {
             Token operation = next();
@@ -45,7 +48,7 @@ public class ASTParser {
         return left;
     }
 
-    private LogicalNode lookLogical() {
+    private LogicalNode lookLogical() throws SyntaxException {
         Token token = peek();
         switch (token.getType()) {
             case OPEN_BRACKET:
@@ -59,11 +62,11 @@ public class ASTParser {
                 return nextComparison();
 
             default:
-                throw new ParseException("Unsupported token: " + token);
+                throw new UnexpectedTokenException("OPERATION", token);
         }
     }
 
-    private ComparisonNode nextComparison() {
+    private ComparisonNode nextComparison() throws SyntaxException {
         ScalarNode left;
         Operation operation;
         ScalarNode right;
@@ -74,50 +77,52 @@ public class ASTParser {
             right = nextConstant();
         } else {
             left = nextConstant();
-            right = nextVariable();
             operation = nextOperation();
+            right = nextVariable();
         }
 
         return new ComparisonNode(left, operation, right);
     }
 
-    private VariableNode nextVariable() {
-        return new VariableNode(next(TokenType.VARIABLE).getLexeme().charAt(0));
+    private VariableNode nextVariable() throws SyntaxException {
+        Token next = next(TokenType.VARIABLE);
+        return new VariableNode(next.getLexeme().charAt(0));
     }
 
-    private Operation nextOperation() {
+    private Operation nextOperation() throws SyntaxException {
         return tokenTypeConverter.toOperation(next().getType());
     }
 
-    private ConstantNode nextConstant() {
-        return new ConstantNode(Integer.parseInt(next(TokenType.CONSTANT).getLexeme()));
+    private ConstantNode nextConstant() throws SyntaxException {
+        Token next = next(TokenType.CONSTANT);
+        return new ConstantNode(Integer.parseInt(next.getLexeme()));
     }
 
     private boolean isInBounds() {
         return pos < tokens.size();
     }
 
-    private Token peek() {
-        if (!isInBounds()) {
-            throw new ParseException("Expected any token, but no any present at " + pos);
+    private void assertInBounds(int pos) throws SyntaxException {
+        if (pos > tokens.size()) {
+            throw new WrongTokenException("Expected any token, but reached the end", pos - 2, pos - 1);
         }
+    }
 
+    private Token peek() throws SyntaxException {
+        assertInBounds(pos);
         return tokens.get(pos);
     }
 
-    private Token next(TokenType expected) {
+    private Token next(TokenType expectedType) throws SyntaxException {
         Token token = next();
-        if (token.getType() != expected) {
-            throw new ParseException("Expected " + expected + " but got " + token);
+        if (token.getType() != expectedType) {
+            throw new UnexpectedTokenException(expectedType, token);
         }
         return token;
     }
 
-    private Token next() {
-        if (pos + 1 > tokens.size()) {
-            throw new ParseException("Expected any token, but reached the end at " + pos);
-        }
-
+    private Token next() throws SyntaxException {
+        assertInBounds(pos + 1);
         return tokens.get(pos++);
     }
 }

@@ -2,6 +2,7 @@ package me.supcheg.evaluator;
 
 import me.supcheg.evaluator.expression.ExpressionTree;
 import me.supcheg.evaluator.expression.Operation;
+import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import me.supcheg.evaluator.expression.step.SimpleOperand;
 import me.supcheg.evaluator.expression.step.Step;
 import me.supcheg.evaluator.expression.step.StepPrintingVisitor;
@@ -23,7 +24,7 @@ class EvaluatorTests {
     }
 
     @Test
-    void run() {
+    void run() throws SyntaxException {
         String expression = "A>5 & B<=3 & A=2";
 
         ExpressionTree tree = evaluator.evaluate(expression);

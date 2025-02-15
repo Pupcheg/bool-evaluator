@@ -26,3 +26,9 @@ java {
 compileJava {
     options.release = 11
 }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'me.supcheg.evaluator.Main'
+    }
+}

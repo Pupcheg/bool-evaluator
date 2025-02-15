@@ -6,4 +6,6 @@ import lombok.Data;
 public class Token {
     private final TokenType type;
     private final String lexeme;
+    private final int start;
+    private final int end;
 }

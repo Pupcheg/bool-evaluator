@@ -1,6 +1,8 @@
 package me.supcheg.evaluator.expression.read;
 
 import lombok.RequiredArgsConstructor;
+import me.supcheg.evaluator.expression.read.exception.SyntaxException;
+import me.supcheg.evaluator.expression.read.exception.WrongTokenException;
 import me.supcheg.evaluator.expression.read.token.Token;
 import me.supcheg.evaluator.expression.read.token.TokenType;
 import me.supcheg.evaluator.expression.read.token.TokenTypeLookup;
@@ -8,6 +10,7 @@ import me.supcheg.evaluator.expression.read.token.TokenTypeLookup;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class Lexer {
@@ -15,7 +18,7 @@ public class Lexer {
     private final String input;
     private int pos = 0;
 
-    public List<Token> tokenize() {
+    public List<Token> tokenize() throws SyntaxException {
         List<Token> tokens = new LinkedList<>();
 
         while (isInBounds()) {
@@ -46,46 +49,58 @@ public class Lexer {
                 continue;
             }
 
-            throw new LexerException(String.format("Unknown character '%s' at %d", ch, pos));
+            throw new WrongTokenException(pos, pos + 1);
         }
 
         return Collections.unmodifiableList(tokens);
     }
 
     private Token nextConstantToken() {
-        StringBuilder lexeme = new StringBuilder();
-        while (isInBounds() && Character.isDigit(cursor())) {
-            lexeme.append(cursor());
-            pos++;
-        }
-        return new Token(TokenType.CONSTANT, lexeme.toString());
+        int start = pos;
+        String lexeme = buildLexemeWhile(Character::isDigit);
+        return new Token(TokenType.CONSTANT, lexeme, start, pos);
     }
 
     private Token nextVariableToken() {
+        int start = pos;
+        int end = pos + 1;
         pos++;
-        return new Token(TokenType.VARIABLE, input.substring(pos - 1, pos));
+        return new Token(TokenType.VARIABLE, input.substring(start, end), start, end);
     }
 
-    private Token nextOperatorToken() {
-        StringBuilder lexemeBuilder = new StringBuilder();
-        while (isInBounds() && isOperatorElement(cursor())) {
-            lexemeBuilder.append(cursor());
-            pos++;
-        }
-        String lexeme = lexemeBuilder.toString();
+    private Token nextOperatorToken() throws SyntaxException {
+        int start = pos;
 
-        return new Token(tokenTypeLookup.operatorToken(lexeme), lexeme);
+        String lexeme = buildLexemeWhile(Lexer::isOperatorElement);
+
+        try {
+            return new Token(tokenTypeLookup.operatorToken(lexeme), lexeme, start, pos);
+        } catch (NullPointerException ex) {
+            throw new WrongTokenException(String.format("Unknown operator '%s'", lexeme), start, pos);
+        }
     }
 
-    private Token nextBracketToken() {
-        StringBuilder lexemeBuilder = new StringBuilder();
-        while (isInBounds() && isBracket(cursor())) {
-            lexemeBuilder.append(cursor());
+    private Token nextBracketToken() throws SyntaxException {
+        int start = pos;
+        String lexeme = buildLexemeWhile(Lexer::isBracket);
+
+        try {
+            return new Token(tokenTypeLookup.bracketTokenType(lexeme), lexeme, start, pos);
+        } catch (NullPointerException ex) {
+            throw new WrongTokenException(String.format("Unknown bracket: %s", lexeme), start, pos);
+        }
+    }
+
+    private String buildLexemeWhile(Predicate<Character> predicate) {
+        StringBuilder lexeme = new StringBuilder();
+
+        char cursor;
+        while (isInBounds() && predicate.test(cursor = cursor())) {
+            lexeme.append(cursor);
             pos++;
         }
-        String lexeme = lexemeBuilder.toString();
 
-        return new Token(tokenTypeLookup.bracketTokenType(lexeme), lexeme);
+        return lexeme.toString();
     }
 
     private boolean isInBounds() {
