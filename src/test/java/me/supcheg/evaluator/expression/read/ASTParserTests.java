@@ -6,6 +6,10 @@ import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.ExpressionTree;
 import me.supcheg.evaluator.expression.Operation;
 import me.supcheg.evaluator.expression.node.VariableNode;
+import me.supcheg.evaluator.expression.read.token.Token;
+import me.supcheg.evaluator.expression.read.token.TokenType;
+import me.supcheg.evaluator.expression.read.token.TokenTypeConverter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -13,6 +17,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ASTParserTests {
+
+    ASTParserFactory factory;
+
+    @BeforeEach
+    void setup() {
+        factory = new ASTParserFactory(new TokenTypeConverter());
+    }
+
     @Test
     void parseTest() {
         assertEquals(
@@ -39,7 +51,7 @@ class ASTParserTests {
                                 )
                         )
                 ),
-                new ASTParser(
+                factory.createASTParser(
                         List.of(
                                 new Token(TokenType.VARIABLE, "A"),
                                 new Token(TokenType.GREATER, ">"),

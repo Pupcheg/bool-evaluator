@@ -1,4 +1,4 @@
-package me.supcheg.evaluator.expression.read;
+package me.supcheg.evaluator.expression.read.token;
 
 import java.util.Map;
 import java.util.Objects;
@@ -24,11 +24,11 @@ public class TokenTypeLookup {
         );
     }
 
-    TokenType operatorToken(String raw) {
+    public TokenType operatorToken(String raw) {
         return Objects.requireNonNull(operators.get(raw), "Unknown operator: " + raw);
     }
 
-    TokenType bracketTokenType(String raw) {
+    public TokenType bracketTokenType(String raw) {
         return Objects.requireNonNull(brackets.get(raw), "Unknown bracket: " + raw);
     }
 }

@@ -2,13 +2,11 @@ package me.supcheg.evaluator;
 
 import me.supcheg.evaluator.expression.ExpressionTree;
 import me.supcheg.evaluator.expression.Operation;
-import me.supcheg.evaluator.expression.read.ASTParser;
-import me.supcheg.evaluator.expression.read.Lexer;
-import me.supcheg.evaluator.expression.read.Token;
 import me.supcheg.evaluator.expression.step.SimpleOperand;
 import me.supcheg.evaluator.expression.step.Step;
 import me.supcheg.evaluator.expression.step.StepPrintingVisitor;
 import me.supcheg.evaluator.expression.walk.SequentalExpressionTreeWalker;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,12 +15,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EvaluatorTests {
 
+    Evaluator evaluator;
+
+    @BeforeEach
+    void setup() {
+        evaluator = new Evaluator();
+    }
+
     @Test
     void run() {
         String expression = "A>5 & B<=3 & A=2";
 
-        List<Token> tokens = new Lexer(expression).listTokens();
-        ExpressionTree tree = new ASTParser(tokens).parse();
+        ExpressionTree tree = evaluator.evaluate(expression);
 
         StepPrintingVisitor visitor = new StepPrintingVisitor();
         SequentalExpressionTreeWalker walker = new SequentalExpressionTreeWalker();

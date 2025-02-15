@@ -1,22 +1,22 @@
 package me.supcheg.evaluator.expression.read;
 
 import lombok.RequiredArgsConstructor;
+import me.supcheg.evaluator.expression.read.token.Token;
+import me.supcheg.evaluator.expression.read.token.TokenType;
+import me.supcheg.evaluator.expression.read.token.TokenTypeLookup;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class Lexer {
-    private final String input;
     private final TokenTypeLookup tokenTypeLookup;
+    private final String input;
     private int pos = 0;
 
-    public Lexer(String input) {
-        this(input, new TokenTypeLookup());
-    }
-
-    public List<Token> listTokens() {
-        List<Token> tokens = new ArrayList<>();
+    public List<Token> tokenize() {
+        List<Token> tokens = new LinkedList<>();
 
         while (isInBounds()) {
             char ch = cursor();
@@ -46,10 +46,10 @@ public class Lexer {
                 continue;
             }
 
-            throw new LexerException(String.format("Unrecognized token '%s' at position %d", ch, pos));
+            throw new LexerException(String.format("Unknown character '%s' at %d", ch, pos));
         }
 
-        return tokens;
+        return Collections.unmodifiableList(tokens);
     }
 
     private Token nextConstantToken() {

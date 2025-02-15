@@ -11,11 +11,11 @@ import java.io.Writer;
 
 public class StepRenderer {
 
-    @SneakyThrows
+    @SneakyThrows(IOException.class) // StringWriter doesn't throw IOException on write
     public String renderToString(Step step) {
-        StringWriter sw = new StringWriter();
-        render(step, sw);
-        return sw.toString();
+        StringWriter stringWriter = new StringWriter();
+        render(step, stringWriter);
+        return stringWriter.toString();
     }
 
     public void render(Step step, Writer out) throws IOException {

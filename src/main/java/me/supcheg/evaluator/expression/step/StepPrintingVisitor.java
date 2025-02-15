@@ -7,7 +7,7 @@ import me.supcheg.evaluator.expression.node.ScalarNode;
 import me.supcheg.evaluator.expression.walk.ExpressionTreeVisitor;
 
 import java.util.Collections;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Objects;
 
 public class StepPrintingVisitor implements ExpressionTreeVisitor {
     private final List<Step> steps = new LinkedList<>();
-    private final Map<Node, Step> stepByNode = new IdentityHashMap<>();
+    private final Map<Node, Step> stepByNode = new HashMap<>();
     private int stepCounter = 0;
 
     public List<Step> getSteps() {
@@ -33,8 +33,7 @@ public class StepPrintingVisitor implements ExpressionTreeVisitor {
                 .right(stepByNode(node.getRight()))
                 .build();
 
-        steps.add(step);
-        stepByNode.put(node, step);
+        addStep(node, step);
     }
 
     @Override
@@ -48,8 +47,13 @@ public class StepPrintingVisitor implements ExpressionTreeVisitor {
                 .right(asSimpleOperand(node.getRight()))
                 .build();
 
+        addStep(node, step);
+    }
+
+    private Step addStep(Node associatedNode, Step step) {
         steps.add(step);
-        stepByNode.put(node, step);
+        stepByNode.put(associatedNode, step);
+        return step;
     }
 
     private Step stepByNode(Node node) {
@@ -57,6 +61,6 @@ public class StepPrintingVisitor implements ExpressionTreeVisitor {
     }
 
     private SimpleOperand asSimpleOperand(ScalarNode node) {
-        return new SimpleOperand(String.valueOf(node.value()));
+        return new SimpleOperand(String.valueOf(node.getScalarValue()));
     }
 }

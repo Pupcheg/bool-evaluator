@@ -7,7 +7,7 @@ public class VariableNode implements ScalarNode {
     private final char variable;
 
     @Override
-    public Object value() {
+    public Object getScalarValue() {
         return variable;
     }
 }

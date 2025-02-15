@@ -9,6 +9,9 @@ import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.LogicalNode;
 import me.supcheg.evaluator.expression.node.ScalarNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
+import me.supcheg.evaluator.expression.read.token.Token;
+import me.supcheg.evaluator.expression.read.token.TokenType;
+import me.supcheg.evaluator.expression.read.token.TokenTypeConverter;
 
 import java.util.List;
 
@@ -17,10 +20,6 @@ public class ASTParser {
     private final TokenTypeConverter tokenTypeConverter;
     private final List<Token> tokens;
     private int pos = 0;
-
-    public ASTParser(List<Token> tokens) {
-        this(new TokenTypeConverter(), tokens);
-    }
 
     public ExpressionTree parse() {
         return new ExpressionTree(lookOR());
@@ -48,16 +47,20 @@ public class ASTParser {
 
     private LogicalNode lookLogical() {
         Token token = peek();
-        if (token.getType() == TokenType.OPEN_BRACKET) {
-            next(TokenType.OPEN_BRACKET);
-            LogicalNode node = lookOR();
-            next(TokenType.CLOSE_BRACKET);
-            return node;
-        } else if (token.getType() == TokenType.VARIABLE || token.getType() == TokenType.CONSTANT) {
-            return nextComparison();
-        }
+        switch (token.getType()) {
+            case OPEN_BRACKET:
+                next(TokenType.OPEN_BRACKET);
+                LogicalNode node = lookOR();
+                next(TokenType.CLOSE_BRACKET);
+                return node;
 
-        throw new UnsupportedOperationException("Unsupported token type: " + token);
+            case VARIABLE:
+            case CONSTANT:
+                return nextComparison();
+
+            default:
+                throw new ParseException("Unsupported token: " + token);
+        }
     }
 
     private ComparisonNode nextComparison() {

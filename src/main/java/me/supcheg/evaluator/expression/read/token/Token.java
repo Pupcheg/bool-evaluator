@@ -1,4 +1,4 @@
-package me.supcheg.evaluator.expression.read;
+package me.supcheg.evaluator.expression.read.token;
 
 import lombok.Data;
 

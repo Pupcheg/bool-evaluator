@@ -6,7 +6,7 @@ import lombok.Data;
 public class ConstantNode implements ScalarNode {
     private final int value;
 
-    public Object value() {
+    public Object getScalarValue() {
         return value;
     }
 }
