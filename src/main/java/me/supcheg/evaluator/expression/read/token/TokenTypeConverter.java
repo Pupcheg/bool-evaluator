@@ -1,9 +1,9 @@
 package me.supcheg.evaluator.expression.read.token;
 
+import lombok.experimental.StandardException;
 import me.supcheg.evaluator.expression.Operation;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class TokenTypeConverter {
     private final Map<TokenType, Operation> operationByTokenType;
@@ -22,6 +22,14 @@ public class TokenTypeConverter {
     }
 
     public Operation toOperation(TokenType type) {
-        return Objects.requireNonNull(operationByTokenType.get(type), "Unexpected token type: " + type);
+        Operation operation = operationByTokenType.get(type);
+        if (operation == null) {
+            throw new OperationNotFoundException("Unknown token type: " + type);
+        }
+        return operation;
+    }
+
+    @StandardException
+    public static class OperationNotFoundException extends RuntimeException {
     }
 }

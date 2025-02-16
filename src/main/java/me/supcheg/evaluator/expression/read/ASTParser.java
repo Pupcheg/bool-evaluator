@@ -9,9 +9,10 @@ import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.LogicalNode;
 import me.supcheg.evaluator.expression.node.ScalarNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
+import me.supcheg.evaluator.expression.read.exception.NotEndException;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
+import me.supcheg.evaluator.expression.read.exception.UnexpectedEndException;
 import me.supcheg.evaluator.expression.read.exception.UnexpectedTokenException;
-import me.supcheg.evaluator.expression.read.exception.WrongTokenException;
 import me.supcheg.evaluator.expression.read.token.Token;
 import me.supcheg.evaluator.expression.read.token.TokenType;
 import me.supcheg.evaluator.expression.read.token.TokenTypeConverter;
@@ -25,15 +26,17 @@ public class ASTParser {
     private int pos = 0;
 
     public ExpressionTree parse() throws SyntaxException {
-        return new ExpressionTree(lookOR());
+        LogicalNode root = lookOR();
+        assertIsEnd();
+        return new ExpressionTree(root);
     }
 
     private LogicalNode lookOR() throws SyntaxException {
         LogicalNode left = lookAND();
         while (isInBounds() && peek().getType() == TokenType.OR) {
-            Token operation = next();
+            Operation operation = nextOperation();
             LogicalNode right = lookAND();
-            left = new ExpressionNode(left, tokenTypeConverter.toOperation(operation.getType()), right);
+            left = new ExpressionNode(left, operation, right);
         }
         return left;
     }
@@ -41,9 +44,9 @@ public class ASTParser {
     private LogicalNode lookAND() throws SyntaxException {
         LogicalNode left = lookLogical();
         while (isInBounds() && peek().getType() == TokenType.AND) {
-            Token operation = next();
+            Operation operation = nextOperation();
             LogicalNode right = lookLogical();
-            left = new ExpressionNode(left, tokenTypeConverter.toOperation(operation.getType()), right);
+            left = new ExpressionNode(left, operation, right);
         }
         return left;
     }
@@ -90,7 +93,12 @@ public class ASTParser {
     }
 
     private Operation nextOperation() throws SyntaxException {
-        return tokenTypeConverter.toOperation(next().getType());
+        Token next = next();
+        try {
+            return tokenTypeConverter.toOperation(next.getType());
+        } catch (TokenTypeConverter.OperationNotFoundException ex) {
+            throw new UnexpectedTokenException("OPERATION", next);
+        }
     }
 
     private ConstantNode nextConstant() throws SyntaxException {
@@ -104,7 +112,7 @@ public class ASTParser {
 
     private void assertInBounds(int pos) throws SyntaxException {
         if (pos > tokens.size()) {
-            throw new WrongTokenException("Expected any token, but reached the end", pos - 2, pos - 1);
+            throw new UnexpectedEndException();
         }
     }
 
@@ -124,5 +132,11 @@ public class ASTParser {
     private Token next() throws SyntaxException {
         assertInBounds(pos + 1);
         return tokens.get(pos++);
+    }
+
+    private void assertIsEnd() throws SyntaxException {
+        if (pos < tokens.size()) {
+            throw new NotEndException();
+        }
     }
 }

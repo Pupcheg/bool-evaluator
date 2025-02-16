@@ -1,7 +1,8 @@
 package me.supcheg.evaluator.expression.read.token;
 
+import lombok.experimental.StandardException;
+
 import java.util.Map;
-import java.util.Objects;
 
 public class TokenTypeLookup {
     private final Map<String, TokenType> operators;
@@ -24,11 +25,23 @@ public class TokenTypeLookup {
         );
     }
 
-    public TokenType operatorToken(String raw) {
-        return Objects.requireNonNull(operators.get(raw), "Unknown operator: " + raw);
+    public TokenType findOperatorTokenType(String raw) {
+        TokenType tokenType = operators.get(raw);
+        if (tokenType == null) {
+            throw new UnknownTokenTypeException("Unknown operator: " + raw);
+        }
+        return tokenType;
     }
 
-    public TokenType bracketTokenType(String raw) {
-        return Objects.requireNonNull(brackets.get(raw), "Unknown bracket: " + raw);
+    public TokenType findBracketTokenType(String raw) {
+        TokenType tokenType = brackets.get(raw);
+        if (tokenType == null) {
+            throw new UnknownTokenTypeException("Unknown bracket: " + raw);
+        }
+        return tokenType;
+    }
+
+    @StandardException
+    public static class UnknownTokenTypeException extends RuntimeException {
     }
 }

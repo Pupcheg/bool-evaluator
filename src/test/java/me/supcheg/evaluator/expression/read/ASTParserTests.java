@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ASTParserTests {
 
@@ -69,6 +70,22 @@ class ASTParserTests {
                                 new Token(TokenType.CLOSE_BRACKET, ")", 19, 20)
                         )
                 ).parse()
+        );
+    }
+
+    @Test
+    void trailingSymbolTest() {
+        ASTParser parser = factory.createASTParser(
+                List.of(
+                        new Token(TokenType.VARIABLE, "A", 0, 1),
+                        new Token(TokenType.LESS, "<", 1, 2),
+                        new Token(TokenType.CONSTANT, "5", 2, 3),
+                        new Token(TokenType.GREATER, ">", 3, 4)
+                )
+        );
+        assertThrows(
+                SyntaxException.class,
+                parser::parse
         );
     }
 }

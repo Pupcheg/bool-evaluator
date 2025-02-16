@@ -74,8 +74,8 @@ public class Lexer {
         String lexeme = buildLexemeWhile(Lexer::isOperatorElement);
 
         try {
-            return new Token(tokenTypeLookup.operatorToken(lexeme), lexeme, start, pos);
-        } catch (NullPointerException ex) {
+            return new Token(tokenTypeLookup.findOperatorTokenType(lexeme), lexeme, start, pos);
+        } catch (TokenTypeLookup.UnknownTokenTypeException ex) {
             throw new WrongTokenException(String.format("Unknown operator '%s'", lexeme), start, pos);
         }
     }
@@ -85,8 +85,8 @@ public class Lexer {
         String lexeme = buildLexemeWhile(Lexer::isBracket);
 
         try {
-            return new Token(tokenTypeLookup.bracketTokenType(lexeme), lexeme, start, pos);
-        } catch (NullPointerException ex) {
+            return new Token(tokenTypeLookup.findBracketTokenType(lexeme), lexeme, start, pos);
+        } catch (TokenTypeLookup.UnknownTokenTypeException ex) {
             throw new WrongTokenException(String.format("Unknown bracket: %s", lexeme), start, pos);
         }
     }

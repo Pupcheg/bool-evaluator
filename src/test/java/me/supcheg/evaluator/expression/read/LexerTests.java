@@ -41,4 +41,17 @@ class LexerTests {
                 factory.createLexer("A>5 & (B<=3 & A=2  )\n").tokenize()
         );
     }
+
+    @Test
+    void trailingSymbolTest() throws SyntaxException {
+        assertEquals(
+                List.of(
+                        new Token(TokenType.VARIABLE, "A", 0, 1),
+                        new Token(TokenType.LESS, "<", 1, 2),
+                        new Token(TokenType.CONSTANT, "5", 2, 3),
+                        new Token(TokenType.GREATER, ">", 3, 4)
+                ),
+                factory.createLexer("A<5>").tokenize()
+        );
+    }
 }

@@ -43,8 +43,7 @@ public class EvaluatorApplication implements Runnable {
         if (ex instanceof ExpressionMessageProvider) {
             ExpressionMessageProvider messageProvider = (ExpressionMessageProvider) ex;
 
-            ExpressionMessageContext ctx
-                    = new ExpressionMessageContext(expression, consoleFormatter);
+            ExpressionMessageContext ctx = new ExpressionMessageContext(expression, consoleFormatter);
             String message;
             try {
                 message = messageProvider.makeMessage(ctx);
