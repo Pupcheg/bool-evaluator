@@ -5,12 +5,13 @@ import me.supcheg.evaluator.expression.node.ComparisonNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.Node;
 
-public enum SequentalExpressionTreeWalker implements ExpressionTreeWalker {
+enum SequentalExpressionTreeWalker implements ExpressionTreeWalker {
     INSTANCE;
 
     @Override
-    public void walk(ExpressionTree tree, ExpressionTreeVisitor visitor) {
+    public <V extends ExpressionTreeVisitor> V walk(ExpressionTree tree, V visitor) {
         walk(tree.getRoot(), visitor);
+        return visitor;
     }
 
     private void walk(Node node, ExpressionTreeVisitor visitor) {

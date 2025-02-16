@@ -2,10 +2,11 @@ package me.supcheg.evaluator;
 
 import lombok.RequiredArgsConstructor;
 import me.supcheg.evaluator.expression.ExpressionTree;
+import me.supcheg.evaluator.expression.analyze.AnalyzeResult;
 import me.supcheg.evaluator.expression.analyze.RangeAnalyzer;
+import me.supcheg.evaluator.expression.step.Step;
 import me.supcheg.evaluator.expression.step.StepPrintingVisitor;
 import me.supcheg.evaluator.expression.step.render.StepRenderer;
-import me.supcheg.evaluator.expression.walk.SequentalExpressionTreeWalker;
 import me.supcheg.evaluator.format.AnsiConsoleFormatter;
 import me.supcheg.evaluator.format.ConsoleFormatter;
 import me.supcheg.evaluator.message.ExpressionMessageContext;
@@ -13,13 +14,17 @@ import me.supcheg.evaluator.message.ExpressionMessageProvider;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
+import static me.supcheg.evaluator.expression.walk.ExpressionTreeWalkers.sequentalExpressionTreeWalker;
 
 @RequiredArgsConstructor
 public class EvaluatorApplication implements Runnable {
     private final Evaluator evaluator = new Evaluator();
     private final ConsoleFormatter consoleFormatter = new AnsiConsoleFormatter();
+    private final StepRenderer stepRenderer = new StepRenderer();
     private final InputStream in;
     private final PrintStream out;
     private final PrintStream err;
@@ -31,6 +36,7 @@ public class EvaluatorApplication implements Runnable {
         String expression = new Scanner(in).nextLine();
 
         long start = System.nanoTime();
+
         ExpressionTree tree;
         try {
             tree = evaluator.evaluate(expression);
@@ -39,10 +45,14 @@ public class EvaluatorApplication implements Runnable {
             return;
         }
 
-        printSteps(tree);
-        printAnalyzeResult(tree);
+        List<Step> steps = makeSteps(tree);
+        AnalyzeResult analyzeResult = analyze(tree);
 
         long end = System.nanoTime();
+
+        printSteps(steps);
+        out.println(analyzeResult.getStringRepresentation());
+
         printTime(end - start);
     }
 
@@ -68,24 +78,24 @@ public class EvaluatorApplication implements Runnable {
     }
 
     private void printTime(long nanos) {
-        out.printf("%d ms%n",TimeUnit.NANOSECONDS.toMillis(nanos));
+        out.printf("%d ms%n", TimeUnit.NANOSECONDS.toMillis(nanos));
     }
 
-    private void printSteps(ExpressionTree tree) {
-        StepPrintingVisitor visitor = new StepPrintingVisitor();
-        SequentalExpressionTreeWalker.INSTANCE.walk(tree, visitor);
-
-        StepRenderer stepRenderer = new StepRenderer();
-
-        visitor.getSteps().stream()
-                .map(stepRenderer::renderToString)
-                .forEach(out::println);
+    private List<Step> makeSteps(ExpressionTree tree) {
+        return sequentalExpressionTreeWalker()
+                .walk(tree, new StepPrintingVisitor())
+                .getSteps();
     }
 
-    private void printAnalyzeResult(ExpressionTree tree) {
-        RangeAnalyzer rangeAnalyzer = new RangeAnalyzer();
-        SequentalExpressionTreeWalker.INSTANCE.walk(tree, rangeAnalyzer);
+    private AnalyzeResult analyze(ExpressionTree tree) {
+        return sequentalExpressionTreeWalker()
+                .walk(tree, new RangeAnalyzer())
+                .getResult();
+    }
 
-        out.println(rangeAnalyzer.getResult().getStringRepresentation());
+    private void printSteps(Iterable<Step> steps) {
+        for (Step step : steps) {
+            System.out.println(stepRenderer.renderToString(step));
+        }
     }
 }

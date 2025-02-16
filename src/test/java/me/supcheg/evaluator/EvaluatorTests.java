@@ -6,12 +6,12 @@ import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import me.supcheg.evaluator.expression.step.SimpleOperand;
 import me.supcheg.evaluator.expression.step.Step;
 import me.supcheg.evaluator.expression.step.StepPrintingVisitor;
-import me.supcheg.evaluator.expression.walk.SequentalExpressionTreeWalker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static me.supcheg.evaluator.expression.walk.ExpressionTreeWalkers.sequentalExpressionTreeWalker;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EvaluatorTests {
@@ -29,9 +29,6 @@ class EvaluatorTests {
 
         ExpressionTree tree = evaluator.evaluate(expression);
 
-        StepPrintingVisitor visitor = new StepPrintingVisitor();
-        SequentalExpressionTreeWalker.INSTANCE.walk(tree, visitor);
-
         Step firstStep = simpleStep(1, "A", Operation.GREATER, 5);
         Step secondStep = simpleStep(2, "B", Operation.LESS_EQUAL, 3);
         Step thirdStep = referenceStep(3, firstStep, Operation.AND, secondStep);
@@ -46,7 +43,9 @@ class EvaluatorTests {
                         fourthStep,
                         fifthStep
                 ),
-                visitor.getSteps()
+                sequentalExpressionTreeWalker()
+                        .walk(tree, new StepPrintingVisitor())
+                        .getSteps()
         );
     }
 

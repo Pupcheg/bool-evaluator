@@ -4,10 +4,10 @@ import me.supcheg.evaluator.Evaluator;
 import me.supcheg.evaluator.expression.analyze.AnalyzeResult;
 import me.supcheg.evaluator.expression.analyze.RangeAnalyzer;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
-import me.supcheg.evaluator.expression.walk.SequentalExpressionTreeWalker;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static me.supcheg.evaluator.expression.walk.ExpressionTreeWalkers.sequentalExpressionTreeWalker;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IntervalAnalyzerTests {
@@ -52,10 +52,8 @@ class IntervalAnalyzerTests {
     }
 
     AnalyzeResult analyze(String expression) throws SyntaxException {
-        RangeAnalyzer rangeAnalyzer = new RangeAnalyzer();
-
-        SequentalExpressionTreeWalker.INSTANCE.walk(EVALUATOR.evaluate(expression), rangeAnalyzer);
-
-        return rangeAnalyzer.getResult();
+        return sequentalExpressionTreeWalker()
+                .walk(EVALUATOR.evaluate(expression), new RangeAnalyzer())
+                .getResult();
     }
 }
