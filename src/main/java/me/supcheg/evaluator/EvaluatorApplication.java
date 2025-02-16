@@ -14,6 +14,7 @@ import me.supcheg.evaluator.message.ExpressionMessageProvider;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class EvaluatorApplication implements Runnable {
@@ -29,6 +30,7 @@ public class EvaluatorApplication implements Runnable {
 
         String expression = new Scanner(in).nextLine();
 
+        long start = System.nanoTime();
         ExpressionTree tree;
         try {
             tree = evaluator.evaluate(expression);
@@ -39,6 +41,9 @@ public class EvaluatorApplication implements Runnable {
 
         printSteps(tree);
         printAnalyzeResult(tree);
+
+        long end = System.nanoTime();
+        printTime(end - start);
     }
 
     private void handleException(Exception ex, String expression) {
@@ -60,6 +65,10 @@ public class EvaluatorApplication implements Runnable {
         }
 
         ex.printStackTrace(err);
+    }
+
+    private void printTime(long nanos) {
+        out.printf("%d ms%n",TimeUnit.NANOSECONDS.toMillis(nanos));
     }
 
     private void printSteps(ExpressionTree tree) {
