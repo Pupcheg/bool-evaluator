@@ -6,8 +6,9 @@ import me.supcheg.evaluator.expression.Operation;
 import me.supcheg.evaluator.expression.node.ComparisonNode;
 import me.supcheg.evaluator.expression.node.ConstantNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
+import me.supcheg.evaluator.expression.node.LeftVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.LogicalNode;
-import me.supcheg.evaluator.expression.node.ScalarNode;
+import me.supcheg.evaluator.expression.node.RightVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
 import me.supcheg.evaluator.expression.read.exception.NotEndException;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
@@ -70,21 +71,19 @@ public class ASTParser {
     }
 
     private ComparisonNode nextComparison() throws SyntaxException {
-        ScalarNode left;
-        Operation operation;
-        ScalarNode right;
-
         if (peek().getType() == TokenType.VARIABLE) {
-            left = nextVariable();
-            operation = nextOperation();
-            right = nextConstant();
+            return new LeftVariableComparisonNode(
+                    nextVariable(),
+                    nextOperation(),
+                    nextConstant()
+            );
         } else {
-            left = nextConstant();
-            operation = nextOperation();
-            right = nextVariable();
+            return new RightVariableComparisonNode(
+                    nextConstant(),
+                    nextOperation(),
+                    nextVariable()
+            );
         }
-
-        return new ComparisonNode(left, operation, right);
     }
 
     private VariableNode nextVariable() throws SyntaxException {

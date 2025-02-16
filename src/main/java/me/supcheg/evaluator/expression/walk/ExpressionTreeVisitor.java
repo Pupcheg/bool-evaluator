@@ -7,6 +7,9 @@ public interface ExpressionTreeVisitor {
     default void visitComparison(ComparisonNode node) {
     }
 
+    default void preVisitExpression(ExpressionNode node) {
+    }
+
     default void visitExpression(ExpressionNode node) {
     }
 }

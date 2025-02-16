@@ -1,11 +1,13 @@
 package me.supcheg.evaluator.expression.node;
 
-import lombok.Data;
-import me.supcheg.evaluator.expression.Operation;
+public interface ComparisonNode extends LogicalNode {
+    @Override
+    ScalarNode getLeft();
 
-@Data
-public class ComparisonNode implements LogicalNode {
-    private final ScalarNode left;
-    private final Operation operation;
-    private final ScalarNode right;
+    @Override
+    ScalarNode getRight();
+
+    VariableNode getVariable();
+
+    ConstantNode getConstant();
 }

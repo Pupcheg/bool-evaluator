@@ -2,9 +2,9 @@ package me.supcheg.evaluator.expression.read;
 
 import me.supcheg.evaluator.expression.ExpressionTree;
 import me.supcheg.evaluator.expression.Operation;
-import me.supcheg.evaluator.expression.node.ComparisonNode;
 import me.supcheg.evaluator.expression.node.ConstantNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
+import me.supcheg.evaluator.expression.node.LeftVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import me.supcheg.evaluator.expression.read.token.Token;
@@ -32,20 +32,20 @@ class ASTParserTests {
         assertEquals(
                 new ExpressionTree(
                         new ExpressionNode(
-                                new ComparisonNode(
+                                new LeftVariableComparisonNode(
                                         new VariableNode('A'),
                                         Operation.GREATER,
                                         new ConstantNode(5)
                                 ),
                                 Operation.AND,
                                 new ExpressionNode(
-                                        new ComparisonNode(
+                                        new LeftVariableComparisonNode(
                                                 new VariableNode('B'),
                                                 Operation.LESS_EQUAL,
                                                 new ConstantNode(3)
                                         ),
                                         Operation.AND,
-                                        new ComparisonNode(
+                                        new LeftVariableComparisonNode(
                                                 new VariableNode('A'),
                                                 Operation.EQUAL,
                                                 new ConstantNode(2)

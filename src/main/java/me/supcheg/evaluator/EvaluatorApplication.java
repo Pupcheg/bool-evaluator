@@ -2,6 +2,7 @@ package me.supcheg.evaluator;
 
 import lombok.RequiredArgsConstructor;
 import me.supcheg.evaluator.expression.ExpressionTree;
+import me.supcheg.evaluator.expression.analyze.RangeAnalyzer;
 import me.supcheg.evaluator.expression.step.StepPrintingVisitor;
 import me.supcheg.evaluator.expression.step.render.StepRenderer;
 import me.supcheg.evaluator.expression.walk.SequentalExpressionTreeWalker;
@@ -37,6 +38,7 @@ public class EvaluatorApplication implements Runnable {
         }
 
         printSteps(tree);
+        printAnalyzeResult(tree);
     }
 
     private void handleException(Exception ex, String expression) {
@@ -70,5 +72,13 @@ public class EvaluatorApplication implements Runnable {
         visitor.getSteps().stream()
                 .map(stepRenderer::renderToString)
                 .forEach(out::println);
+    }
+
+    private void printAnalyzeResult(ExpressionTree tree) {
+        RangeAnalyzer rangeAnalyzer = new RangeAnalyzer();
+        SequentalExpressionTreeWalker walker = new SequentalExpressionTreeWalker();
+        walker.walk(tree, rangeAnalyzer);
+
+        out.println(rangeAnalyzer.getResult().getStringRepresentation());
     }
 }

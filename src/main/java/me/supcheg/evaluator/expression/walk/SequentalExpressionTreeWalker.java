@@ -20,6 +20,7 @@ public class SequentalExpressionTreeWalker implements ExpressionTreeWalker {
     }
 
     private void walk(ExpressionNode node, ExpressionTreeVisitor visitor) {
+        visitor.preVisitExpression(node);
         walk(node.getLeft(), visitor);
         walk(node.getRight(), visitor);
         visitor.visitExpression(node);

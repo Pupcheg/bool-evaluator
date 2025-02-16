@@ -29,7 +29,7 @@ public class Lexer {
                 continue;
             }
 
-            if (Character.isDigit(ch)) {
+            if (isDigit(ch)) {
                 tokens.add(nextConstantToken());
                 continue;
             }
@@ -57,7 +57,7 @@ public class Lexer {
 
     private Token nextConstantToken() {
         int start = pos;
-        String lexeme = buildLexemeWhile(Character::isDigit);
+        String lexeme = buildLexemeWhile(Lexer::isDigit);
         return new Token(TokenType.CONSTANT, lexeme, start, pos);
     }
 
@@ -109,6 +109,10 @@ public class Lexer {
 
     private char cursor() {
         return input.charAt(pos);
+    }
+
+    private static boolean isDigit(char ch) {
+        return ch == '-' || Character.isDigit(ch);
     }
 
     private static boolean isVariable(char ch) {
