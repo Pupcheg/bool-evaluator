@@ -7,36 +7,29 @@ public class Interval {
     public static final int NEGATIVE_INFINITY = Integer.MIN_VALUE;
     public static final int POSITIVE_INFINITY = Integer.MAX_VALUE;
 
-    private final int lower;
-    private final int upper;
-    private final boolean includeLower;
-    private final boolean includeUpper;
+    private final int start;
+    private final int end;
 
     public boolean isEmpty() {
-        if (lower > upper) return true;
-        return lower == upper && (!includeLower || !includeUpper);
+        if (start > end) return true;
+        return start == end - 1;
     }
 
     public boolean isFull() {
-        return lower == NEGATIVE_INFINITY && upper == POSITIVE_INFINITY;
+        return start == NEGATIVE_INFINITY && end == POSITIVE_INFINITY;
     }
 
     public Interval union(Interval other) {
-        int newLower = Math.min(this.lower, other.lower);
-        int newUpper = Math.max(this.upper, other.upper);
-        boolean includeLower = (this.lower == newLower && this.includeLower) ||
-                               (other.lower == newLower && other.includeLower);
-        boolean includeUpper = (this.upper == newUpper && this.includeUpper) ||
-                               (other.upper == newUpper && other.includeUpper);
-        return new Interval(newLower, newUpper, includeLower, includeUpper);
+        return new Interval(
+                Math.min(this.start, other.start),
+                Math.max(this.end, other.end)
+        );
     }
 
     public Interval intersect(Interval other) {
-        int newLower = Math.max(this.lower, other.lower);
-        int newUpper = Math.min(this.upper, other.upper);
-        boolean includeLower = (this.lower == newLower ? this.includeLower : other.includeLower);
-        boolean includeUpper = (this.upper == newUpper ? this.includeUpper : other.includeUpper);
-
-        return new Interval(newLower, newUpper, includeLower, includeUpper);
+        return new Interval(
+                Math.max(this.start, other.start),
+                Math.min(this.end, other.end)
+        );
     }
 }

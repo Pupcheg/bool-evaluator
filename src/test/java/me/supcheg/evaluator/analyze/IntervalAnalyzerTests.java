@@ -43,11 +43,18 @@ class IntervalAnalyzerTests {
         );
     }
 
+    @Test
+    void alwaysTrueMixedTest() throws SyntaxException {
+        assertEquals(
+                AnalyzeResult.ALWAYS_TRUE,
+                analyze("A>3 | (B<3 | A<=3) | B>=3")
+        );
+    }
+
     AnalyzeResult analyze(String expression) throws SyntaxException {
         RangeAnalyzer rangeAnalyzer = new RangeAnalyzer();
-        SequentalExpressionTreeWalker walker = new SequentalExpressionTreeWalker();
 
-        walker.walk(EVALUATOR.evaluate(expression), rangeAnalyzer);
+        SequentalExpressionTreeWalker.INSTANCE.walk(EVALUATOR.evaluate(expression), rangeAnalyzer);
 
         return rangeAnalyzer.getResult();
     }

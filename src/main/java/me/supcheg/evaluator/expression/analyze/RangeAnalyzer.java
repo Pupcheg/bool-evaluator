@@ -41,19 +41,19 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
     private static List<Interval> createIntervals(Operation op, int value) {
         switch (op) {
             case GREATER:
-                return List.of(new Interval(value + 1, Interval.POSITIVE_INFINITY, true, false));
+                return List.of(new Interval(value + 1, Interval.POSITIVE_INFINITY));
             case LESS:
-                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value - 1, false, true));
+                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value));
             case GREATER_EQUAL:
-                return List.of(new Interval(value, Interval.POSITIVE_INFINITY, true, false));
+                return List.of(new Interval(value, Interval.POSITIVE_INFINITY));
             case LESS_EQUAL:
-                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value, false, true));
+                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value + 1));
             case EQUAL:
-                return List.of(new Interval(value, value, true, true));
+                return List.of(new Interval(value, value + 1));
             case NOT_EQUAL:
                 return List.of(
-                        new Interval(Interval.NEGATIVE_INFINITY, value, false, false),
-                        new Interval(value, Interval.POSITIVE_INFINITY, false, false)
+                        new Interval(Interval.NEGATIVE_INFINITY, value),
+                        new Interval(value + 1, Interval.POSITIVE_INFINITY)
                 );
             default:
                 throw new IllegalArgumentException("Invalid operation: " + op);

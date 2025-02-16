@@ -42,7 +42,7 @@ public class VariableRange {
     private void compact() {
         List<Interval> compact = new LinkedList<>();
 
-        Iterable<Interval> sortedByLower = intervals.stream().sorted(Comparator.comparingInt(Interval::getLower))::iterator;
+        Iterable<Interval> sortedByLower = intervals.stream().sorted(Comparator.comparingInt(Interval::getStart))::iterator;
 
         for (Interval cursor : sortedByLower) {
 
@@ -52,7 +52,7 @@ public class VariableRange {
             }
 
             Interval last = compact.get(compact.size() - 1);
-            if (last.getUpper() >= cursor.getLower() - 1) {
+            if (last.getEnd() >= cursor.getStart() - 1) {
                 compact.set(compact.size() - 1, last.union(cursor));
             } else {
                 compact.add(cursor);

@@ -30,8 +30,7 @@ class EvaluatorTests {
         ExpressionTree tree = evaluator.evaluate(expression);
 
         StepPrintingVisitor visitor = new StepPrintingVisitor();
-        SequentalExpressionTreeWalker walker = new SequentalExpressionTreeWalker();
-        walker.walk(tree, visitor);
+        SequentalExpressionTreeWalker.INSTANCE.walk(tree, visitor);
 
         Step firstStep = simpleStep(1, "A", Operation.GREATER, 5);
         Step secondStep = simpleStep(2, "B", Operation.LESS_EQUAL, 3);
