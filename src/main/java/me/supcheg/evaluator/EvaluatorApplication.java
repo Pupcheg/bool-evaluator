@@ -64,8 +64,7 @@ public class EvaluatorApplication implements Runnable {
 
     private void printSteps(ExpressionTree tree) {
         StepPrintingVisitor visitor = new StepPrintingVisitor();
-        SequentalExpressionTreeWalker walker = new SequentalExpressionTreeWalker();
-        walker.walk(tree, visitor);
+        SequentalExpressionTreeWalker.INSTANCE.walk(tree, visitor);
 
         StepRenderer stepRenderer = new StepRenderer();
 
@@ -76,8 +75,7 @@ public class EvaluatorApplication implements Runnable {
 
     private void printAnalyzeResult(ExpressionTree tree) {
         RangeAnalyzer rangeAnalyzer = new RangeAnalyzer();
-        SequentalExpressionTreeWalker walker = new SequentalExpressionTreeWalker();
-        walker.walk(tree, rangeAnalyzer);
+        SequentalExpressionTreeWalker.INSTANCE.walk(tree, rangeAnalyzer);
 
         out.println(rangeAnalyzer.getResult().getStringRepresentation());
     }

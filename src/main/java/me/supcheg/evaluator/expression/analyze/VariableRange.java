@@ -2,15 +2,15 @@ package me.supcheg.evaluator.expression.analyze;
 
 import me.supcheg.evaluator.expression.Operation;
 
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
 
 public class VariableRange {
-    private List<Interval> intervals = new ArrayList<>();
+    private List<Interval> intervals = new LinkedList<>();
 
     public void addIntervals(Iterable<Interval> intervals, Operation operation) {
         for (Interval interval : intervals) {
@@ -22,36 +22,44 @@ public class VariableRange {
         switch (operation) {
             case OR:
                 intervals.add(interval);
-                intervals = mergeIntervals();
+                compact();
                 break;
             case AND:
-                intervals = intervals.stream()
-                        .map(existing -> Interval.intersect(existing, interval))
-                        .filter(not(Interval::isEmpty))
-                        .collect(Collectors.toList());
+                intersect(interval);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported operation: " + operation);
         }
     }
 
-    private List<Interval> mergeIntervals() {
-        List<Interval> merged = new ArrayList<>();
-        for (Interval interval : (Iterable<Interval>) intervals.stream().sorted(Comparator.comparingInt(Interval::getLower))::iterator) {
+    private void intersect(Interval interval) {
+        intervals = intervals.stream()
+                .map(existing -> existing.intersect(interval))
+                .filter(not(Interval::isEmpty))
+                .collect(Collectors.toList());
+    }
 
-            if (merged.isEmpty()) {
-                merged.add(interval);
+    private void compact() {
+        List<Interval> compact = new LinkedList<>();
+
+        Iterable<Interval> sortedByLower = intervals.stream().sorted(Comparator.comparingInt(Interval::getLower))::iterator;
+
+        for (Interval cursor : sortedByLower) {
+
+            if (compact.isEmpty()) {
+                compact.add(cursor);
                 continue;
             }
 
-            Interval last = merged.get(merged.size() - 1);
-            if (last.getUpper() >= interval.getLower() - 1) {
-                merged.set(merged.size() - 1, Interval.union(last, interval));
+            Interval last = compact.get(compact.size() - 1);
+            if (last.getUpper() >= cursor.getLower() - 1) {
+                compact.set(compact.size() - 1, last.union(cursor));
             } else {
-                merged.add(interval);
+                compact.add(cursor);
             }
         }
-        return merged;
+
+        intervals = compact;
     }
 
     public boolean isAlwaysTrue() {

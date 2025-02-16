@@ -5,7 +5,9 @@ import me.supcheg.evaluator.expression.node.ComparisonNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.Node;
 
-public class SequentalExpressionTreeWalker implements ExpressionTreeWalker {
+public enum SequentalExpressionTreeWalker implements ExpressionTreeWalker {
+    INSTANCE;
+
     @Override
     public void walk(ExpressionTree tree, ExpressionTreeVisitor visitor) {
         walk(tree.getRoot(), visitor);

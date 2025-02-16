@@ -16,6 +16,12 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
     private Operation currentOperation = Operation.OR; // by default for trees with one comparison node
 
     @Override
+    public void preVisitExpression(ExpressionNode node) {
+        previousOperation = currentOperation;
+        currentOperation = node.getOperation();
+    }
+
+    @Override
     public void visitComparison(ComparisonNode node) {
         VariableNode variable = node.getVariable();
 
@@ -28,17 +34,11 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
     }
 
     @Override
-    public void preVisitExpression(ExpressionNode node) {
-        previousOperation = currentOperation;
-        currentOperation = node.getOperation();
-    }
-
-    @Override
     public void visitExpression(ExpressionNode node) {
         currentOperation = previousOperation;
     }
 
-    private List<Interval> createIntervals(Operation op, int value) {
+    private static List<Interval> createIntervals(Operation op, int value) {
         switch (op) {
             case GREATER:
                 return List.of(new Interval(value + 1, Interval.POSITIVE_INFINITY, true, false));
@@ -51,7 +51,10 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
             case EQUAL:
                 return List.of(new Interval(value, value, true, true));
             case NOT_EQUAL:
-               return Interval.FULL.subtract(new Interval(value, value, true, true));
+                return List.of(
+                        new Interval(Interval.NEGATIVE_INFINITY, value, false, false),
+                        new Interval(value, Interval.POSITIVE_INFINITY, false, false)
+                );
             default:
                 throw new IllegalArgumentException("Invalid operation: " + op);
         }
