@@ -16,7 +16,6 @@ import java.util.Objects;
 public class StepPrintingVisitor implements ExpressionTreeVisitor {
     private final List<Step> steps = new LinkedList<>();
     private final Map<Node, Step> stepByNode = new HashMap<>();
-    private int stepCounter = 0;
 
     public List<Step> getSteps() {
         return Collections.unmodifiableList(steps);
@@ -24,10 +23,8 @@ public class StepPrintingVisitor implements ExpressionTreeVisitor {
 
     @Override
     public void visitExpression(ExpressionNode node) {
-        stepCounter++;
-
         Step step = Step.builder()
-                .number(stepCounter)
+                .number(nextStepNumber())
                 .left(stepByNode(node.getLeft()))
                 .operation(node.getOperation())
                 .right(stepByNode(node.getRight()))
@@ -38,10 +35,8 @@ public class StepPrintingVisitor implements ExpressionTreeVisitor {
 
     @Override
     public void visitComparison(ComparisonNode node) {
-        stepCounter++;
-
         Step step = Step.builder()
-                .number(stepCounter)
+                .number(nextStepNumber())
                 .left(asSimpleOperand(node.getLeft()))
                 .operation(node.getOperation())
                 .right(asSimpleOperand(node.getRight()))
@@ -54,6 +49,10 @@ public class StepPrintingVisitor implements ExpressionTreeVisitor {
         steps.add(step);
         stepByNode.put(associatedNode, step);
         return step;
+    }
+
+    private int nextStepNumber() {
+        return steps.size() + 1;
     }
 
     private Step stepByNode(Node node) {
