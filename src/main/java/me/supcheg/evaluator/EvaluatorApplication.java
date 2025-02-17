@@ -51,7 +51,7 @@ public class EvaluatorApplication implements Runnable {
         long end = System.nanoTime();
 
         printSteps(steps);
-        out.println(analyzeResult.getStringRepresentation());
+        printAnalyzeResult(analyzeResult);
 
         printTime(end - start);
     }
@@ -77,8 +77,12 @@ public class EvaluatorApplication implements Runnable {
         ex.printStackTrace(err);
     }
 
+    private void printAnalyzeResult(AnalyzeResult analyzeResult) {
+        System.out.printf("Result: %s%n", analyzeResult.getStringRepresentation());
+    }
+
     private void printTime(long nanos) {
-        out.printf("%d ms%n", TimeUnit.NANOSECONDS.toMillis(nanos));
+        out.printf("Spent time: %d ms%n", TimeUnit.NANOSECONDS.toMillis(nanos));
     }
 
     private List<Step> makeSteps(ExpressionTree tree) {
