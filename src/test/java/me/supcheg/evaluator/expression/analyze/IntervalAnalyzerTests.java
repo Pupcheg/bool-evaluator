@@ -1,8 +1,6 @@
-package me.supcheg.evaluator.analyze;
+package me.supcheg.evaluator.expression.analyze;
 
 import me.supcheg.evaluator.Evaluator;
-import me.supcheg.evaluator.expression.analyze.AnalyzeResult;
-import me.supcheg.evaluator.expression.analyze.RangeAnalyzer;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,6 +30,14 @@ class IntervalAnalyzerTests {
         assertEquals(
                 AnalyzeResult.ALWAYS_FALSE,
                 analyze("A>5 & (B<=3 & A=2)")
+        );
+    }
+
+    @Test
+    void alwaysFalseMixedTest() throws SyntaxException {
+        assertEquals(
+                AnalyzeResult.ALWAYS_FALSE,
+                analyze("A=3 & A<3 | B = -10 & B > -10")
         );
     }
 
