@@ -6,19 +6,24 @@ import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
 import me.supcheg.evaluator.expression.walk.ExpressionTreeVisitor;
 
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class RangeAnalyzer implements ExpressionTreeVisitor {
-    private final Map<VariableNode, VariableRange> rangeByVariable = new HashMap<>();
-    private Operation previousOperation;
-    private Operation currentOperation = Operation.OR; // by default for trees with one comparison node
+    private final Map<VariableNode, VariableRange> rangeByVariable;
+    private final Deque<Operation> expressionOperations;
+
+    public RangeAnalyzer() {
+        this.rangeByVariable = new HashMap<>();
+        this.expressionOperations = new LinkedList<>();
+    }
 
     @Override
     public void preVisitExpression(ExpressionNode node) {
-        previousOperation = currentOperation;
-        currentOperation = node.getOperation();
+        expressionOperations.addLast(node.getOperation());
     }
 
     @Override
@@ -29,17 +34,27 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
                 node.getOperation(),
                 node.getConstant().getValue()
         );
-        rangeByVariable.computeIfAbsent(variable, __ -> new VariableRange())
-                .addIntervals(intervals, currentOperation);
+        Operation operation = getCurrentExpressionOperation();
+
+        getVariableRange(variable)
+                .addIntervals(intervals, operation);
     }
 
     @Override
     public void visitExpression(ExpressionNode node) {
-        currentOperation = previousOperation;
+        expressionOperations.removeLast();
     }
 
-    private static List<Interval> createIntervals(Operation op, int value) {
-        switch (op) {
+    private Operation getCurrentExpressionOperation() {
+        return expressionOperations.isEmpty() ? Operation.OR : expressionOperations.peekLast();
+    }
+
+    private VariableRange getVariableRange(VariableNode variable) {
+        return rangeByVariable.computeIfAbsent(variable, __ -> new VariableRange());
+    }
+
+    private static List<Interval> createIntervals(Operation operation, int value) {
+        switch (operation) {
             case GREATER:
                 return List.of(new Interval(value + 1, Interval.POSITIVE_INFINITY));
             case LESS:
@@ -56,7 +71,7 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
                         new Interval(value + 1, Interval.POSITIVE_INFINITY)
                 );
             default:
-                throw new IllegalArgumentException("Invalid operation: " + op);
+                throw new IllegalArgumentException("Invalid operation: " + operation);
         }
     }
 
