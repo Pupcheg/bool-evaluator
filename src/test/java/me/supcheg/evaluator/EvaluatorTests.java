@@ -1,7 +1,9 @@
 package me.supcheg.evaluator;
 
 import me.supcheg.evaluator.expression.ExpressionTree;
-import me.supcheg.evaluator.expression.Operation;
+import me.supcheg.evaluator.expression.operation.ComparisonOperation;
+import me.supcheg.evaluator.expression.operation.BooleanOperation;
+import me.supcheg.evaluator.expression.operation.Operation;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import me.supcheg.evaluator.expression.step.SimpleOperand;
 import me.supcheg.evaluator.expression.step.Step;
@@ -29,11 +31,11 @@ class EvaluatorTests {
 
         ExpressionTree tree = evaluator.evaluate(expression);
 
-        Step firstStep = simpleStep(1, "A", Operation.GREATER, 5);
-        Step secondStep = simpleStep(2, "B", Operation.LESS_EQUAL, 3);
-        Step thirdStep = referenceStep(3, firstStep, Operation.AND, secondStep);
-        Step fourthStep = simpleStep(4, "A", Operation.EQUAL, 2);
-        Step fifthStep = referenceStep(5, thirdStep, Operation.AND, fourthStep);
+        Step firstStep = simpleStep(1, "A", ComparisonOperation.GREATER, 5);
+        Step secondStep = simpleStep(2, "B", ComparisonOperation.LESS_EQUAL, 3);
+        Step thirdStep = referenceStep(3, firstStep, BooleanOperation.AND, secondStep);
+        Step fourthStep = simpleStep(4, "A", ComparisonOperation.EQUAL, 2);
+        Step fifthStep = referenceStep(5, thirdStep, BooleanOperation.AND, fourthStep);
 
         assertEquals(
                 List.of(

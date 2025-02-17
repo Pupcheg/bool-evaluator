@@ -1,11 +1,12 @@
 package me.supcheg.evaluator.expression.read;
 
 import me.supcheg.evaluator.expression.ExpressionTree;
-import me.supcheg.evaluator.expression.Operation;
 import me.supcheg.evaluator.expression.node.ConstantNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.LeftVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
+import me.supcheg.evaluator.expression.operation.ComparisonOperation;
+import me.supcheg.evaluator.expression.operation.BooleanOperation;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import me.supcheg.evaluator.expression.read.token.Token;
 import me.supcheg.evaluator.expression.read.token.TokenType;
@@ -34,20 +35,20 @@ class ASTParserTests {
                         new ExpressionNode(
                                 new LeftVariableComparisonNode(
                                         new VariableNode('A'),
-                                        Operation.GREATER,
+                                        ComparisonOperation.GREATER,
                                         new ConstantNode(5)
                                 ),
-                                Operation.AND,
+                                BooleanOperation.AND,
                                 new ExpressionNode(
                                         new LeftVariableComparisonNode(
                                                 new VariableNode('B'),
-                                                Operation.LESS_EQUAL,
+                                                ComparisonOperation.LESS_EQUAL,
                                                 new ConstantNode(3)
                                         ),
-                                        Operation.AND,
+                                        BooleanOperation.AND,
                                         new LeftVariableComparisonNode(
                                                 new VariableNode('A'),
-                                                Operation.EQUAL,
+                                                ComparisonOperation.EQUAL,
                                                 new ConstantNode(2)
                                         )
                                 )

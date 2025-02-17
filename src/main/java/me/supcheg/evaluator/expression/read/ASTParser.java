@@ -2,7 +2,6 @@ package me.supcheg.evaluator.expression.read;
 
 import lombok.RequiredArgsConstructor;
 import me.supcheg.evaluator.expression.ExpressionTree;
-import me.supcheg.evaluator.expression.Operation;
 import me.supcheg.evaluator.expression.node.ComparisonNode;
 import me.supcheg.evaluator.expression.node.ConstantNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
@@ -10,6 +9,8 @@ import me.supcheg.evaluator.expression.node.LeftVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.LogicalNode;
 import me.supcheg.evaluator.expression.node.RightVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
+import me.supcheg.evaluator.expression.operation.ComparisonOperation;
+import me.supcheg.evaluator.expression.operation.BooleanOperation;
 import me.supcheg.evaluator.expression.read.exception.NotEndException;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import me.supcheg.evaluator.expression.read.exception.UnexpectedEndException;
@@ -35,7 +36,7 @@ public class ASTParser {
     private LogicalNode lookOR() throws SyntaxException {
         LogicalNode left = lookAND();
         while (isInBounds() && peek().getType() == TokenType.OR) {
-            Operation operation = nextOperation();
+            BooleanOperation operation = nextBooleanOperation();
             LogicalNode right = lookAND();
             left = new ExpressionNode(left, operation, right);
         }
@@ -45,7 +46,7 @@ public class ASTParser {
     private LogicalNode lookAND() throws SyntaxException {
         LogicalNode left = lookLogical();
         while (isInBounds() && peek().getType() == TokenType.AND) {
-            Operation operation = nextOperation();
+            BooleanOperation operation = nextBooleanOperation();
             LogicalNode right = lookLogical();
             left = new ExpressionNode(left, operation, right);
         }
@@ -74,13 +75,13 @@ public class ASTParser {
         if (peek().getType() == TokenType.VARIABLE) {
             return new LeftVariableComparisonNode(
                     nextVariable(),
-                    nextOperation(),
+                    nextComparisonOperation(),
                     nextConstant()
             );
         } else {
             return new RightVariableComparisonNode(
                     nextConstant(),
-                    nextOperation(),
+                    nextComparisonOperation(),
                     nextVariable()
             );
         }
@@ -91,10 +92,19 @@ public class ASTParser {
         return new VariableNode(next.getLexeme().charAt(0));
     }
 
-    private Operation nextOperation() throws SyntaxException {
+    private BooleanOperation nextBooleanOperation() throws SyntaxException {
         Token next = next();
         try {
-            return tokenTypeConverter.toOperation(next.getType());
+            return tokenTypeConverter.toBooleanOperation(next.getType());
+        } catch (TokenTypeConverter.OperationNotFoundException ex) {
+            throw new UnexpectedTokenException("OPERATION", next);
+        }
+    }
+
+    private ComparisonOperation nextComparisonOperation() throws SyntaxException {
+        Token next = next();
+        try {
+            return tokenTypeConverter.toComparisonOperation(next.getType());
         } catch (TokenTypeConverter.OperationNotFoundException ex) {
             throw new UnexpectedTokenException("OPERATION", next);
         }

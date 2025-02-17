@@ -1,12 +1,12 @@
 package me.supcheg.evaluator.expression.node;
 
 import lombok.Data;
-import me.supcheg.evaluator.expression.Operation;
+import me.supcheg.evaluator.expression.operation.ComparisonOperation;
 
 @Data
 public class LeftVariableComparisonNode implements ComparisonNode {
     private final VariableNode left;
-    private final Operation operation;
+    private final ComparisonOperation operation;
     private final ConstantNode right;
 
     @Override

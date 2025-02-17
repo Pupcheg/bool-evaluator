@@ -1,9 +1,10 @@
 package me.supcheg.evaluator.expression.analyze;
 
-import me.supcheg.evaluator.expression.Operation;
 import me.supcheg.evaluator.expression.node.ComparisonNode;
 import me.supcheg.evaluator.expression.node.ExpressionNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
+import me.supcheg.evaluator.expression.operation.ComparisonOperation;
+import me.supcheg.evaluator.expression.operation.BooleanOperation;
 import me.supcheg.evaluator.expression.walk.ExpressionTreeVisitor;
 
 import java.util.Deque;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 public class RangeAnalyzer implements ExpressionTreeVisitor {
     private final Map<VariableNode, VariableRange> rangeByVariable;
-    private final Deque<Operation> expressionOperations;
+    private final Deque<BooleanOperation> expressionOperations;
 
     public RangeAnalyzer() {
         this.rangeByVariable = new HashMap<>();
@@ -34,7 +35,7 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
                 node.getOperation(),
                 node.getConstant().getValue()
         );
-        Operation operation = getCurrentExpressionOperation();
+        BooleanOperation operation = getCurrentExpressionOperation();
 
         getVariableRange(variable)
                 .addIntervals(intervals, operation);
@@ -45,15 +46,15 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
         expressionOperations.removeLast();
     }
 
-    private Operation getCurrentExpressionOperation() {
-        return expressionOperations.isEmpty() ? Operation.OR : expressionOperations.peekLast();
+    private BooleanOperation getCurrentExpressionOperation() {
+        return expressionOperations.isEmpty() ? BooleanOperation.OR : expressionOperations.peekLast();
     }
 
     private VariableRange getVariableRange(VariableNode variable) {
         return rangeByVariable.computeIfAbsent(variable, __ -> new VariableRange());
     }
 
-    private static List<Interval> createIntervals(Operation operation, int value) {
+    private static List<Interval> createIntervals(ComparisonOperation operation, int value) {
         switch (operation) {
             case GREATER:
                 return List.of(new Interval(value + 1, Interval.POSITIVE_INFINITY));

@@ -1,13 +1,11 @@
-package me.supcheg.evaluator.expression;
+package me.supcheg.evaluator.expression.operation;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum Operation {
-    AND("&"),
-    OR("|"),
+public enum ComparisonOperation implements Operation {
     EQUAL("="),
     NOT_EQUAL("!="),
     LESS("<"),

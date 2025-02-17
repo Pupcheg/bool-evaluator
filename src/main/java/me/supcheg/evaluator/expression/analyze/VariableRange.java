@@ -1,6 +1,6 @@
 package me.supcheg.evaluator.expression.analyze;
 
-import me.supcheg.evaluator.expression.Operation;
+import me.supcheg.evaluator.expression.operation.BooleanOperation;
 
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -12,13 +12,13 @@ import static java.util.function.Predicate.not;
 public class VariableRange {
     private List<Interval> intervals = new LinkedList<>();
 
-    public void addIntervals(Iterable<Interval> intervals, Operation operation) {
+    public void addIntervals(Iterable<Interval> intervals, BooleanOperation operation) {
         for (Interval interval : intervals) {
             addInterval(interval, operation);
         }
     }
 
-    public void addInterval(Interval interval, Operation operation) {
+    public void addInterval(Interval interval, BooleanOperation operation) {
         switch (operation) {
             case OR:
                 intervals.add(interval);

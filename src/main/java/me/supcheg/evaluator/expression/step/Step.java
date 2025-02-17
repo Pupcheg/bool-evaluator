@@ -3,7 +3,7 @@ package me.supcheg.evaluator.expression.step;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import me.supcheg.evaluator.expression.Operation;
+import me.supcheg.evaluator.expression.operation.Operation;
 
 @Builder
 @RequiredArgsConstructor
