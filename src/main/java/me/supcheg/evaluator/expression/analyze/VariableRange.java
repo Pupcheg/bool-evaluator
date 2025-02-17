@@ -60,7 +60,7 @@ public class VariableRange {
             }
 
             Interval last = compact.get(compact.size() - 1);
-            if (last.getUpper() <= cursor.getLower() + 1) {
+            if (last.touchesRight(cursor)) {
                 compact.set(compact.size() - 1, last.union(cursor));
                 continue;
             }

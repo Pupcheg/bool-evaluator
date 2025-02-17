@@ -31,4 +31,8 @@ public class Interval {
                 Math.min(this.upper, other.upper)
         );
     }
+
+    public boolean touchesRight(Interval other) {
+        return upper <= other.lower + 1;
+    }
 }
