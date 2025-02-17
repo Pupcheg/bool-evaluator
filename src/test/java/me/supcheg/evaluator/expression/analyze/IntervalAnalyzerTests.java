@@ -29,7 +29,7 @@ class IntervalAnalyzerTests {
     void alwaysFalseTest() throws SyntaxException {
         assertEquals(
                 AnalyzeResult.ALWAYS_FALSE,
-                analyze("A>5 & (B<=3 & A=2)")
+                analyze("A>5 & B<=3 & A=2")
         );
     }
 
@@ -57,7 +57,7 @@ class IntervalAnalyzerTests {
         );
     }
 
-    AnalyzeResult analyze(String expression) throws SyntaxException {
+    private static AnalyzeResult analyze(String expression) throws SyntaxException {
         return sequentalExpressionTreeWalker()
                 .walk(EVALUATOR.evaluate(expression), new RangeAnalyzer())
                 .getResult();

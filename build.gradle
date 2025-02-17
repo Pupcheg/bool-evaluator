@@ -28,6 +28,8 @@ compileJava {
 }
 
 jar {
+    archiveFileName = 'boolean_expression_evaluator.jar'
+
     manifest {
         attributes 'Main-Class': 'me.supcheg.evaluator.Main'
     }

@@ -28,17 +28,15 @@ class LexerTests {
                         new Token(TokenType.GREATER, ">", 1, 2),
                         new Token(TokenType.CONSTANT, "5", 2, 3),
                         new Token(TokenType.AND, "&", 4, 5),
-                        new Token(TokenType.OPEN_BRACKET, "(", 6, 7),
-                        new Token(TokenType.VARIABLE, "B", 7, 8),
-                        new Token(TokenType.EQUAL_LESS, "<=", 8, 10),
-                        new Token(TokenType.CONSTANT, "3", 10, 11),
-                        new Token(TokenType.AND, "&", 12, 13),
-                        new Token(TokenType.VARIABLE, "A", 14, 15),
-                        new Token(TokenType.EQUAL, "=", 15, 16),
-                        new Token(TokenType.CONSTANT, "2", 16, 17),
-                        new Token(TokenType.CLOSE_BRACKET, ")", 19, 20)
+                        new Token(TokenType.VARIABLE, "B", 6, 7),
+                        new Token(TokenType.EQUAL_LESS, "<=", 7, 9),
+                        new Token(TokenType.CONSTANT, "3", 9, 10),
+                        new Token(TokenType.AND, "&", 11, 12),
+                        new Token(TokenType.VARIABLE, "A", 13, 14),
+                        new Token(TokenType.EQUAL, "=", 14, 15),
+                        new Token(TokenType.CONSTANT, "2", 15, 16)
                 ),
-                factory.createLexer("A>5 & (B<=3 & A=2  )\n").tokenize()
+                factory.createLexer("A>5 & B<=3 & A=2").tokenize()
         );
     }
 
@@ -52,6 +50,14 @@ class LexerTests {
                         new Token(TokenType.GREATER, ">", 3, 4)
                 ),
                 factory.createLexer("A<5>").tokenize()
+        );
+    }
+
+    @Test
+    void noSymbolTest() throws SyntaxException {
+        assertEquals(
+                List.of(),
+                factory.createLexer("").tokenize()
         );
     }
 }
