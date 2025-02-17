@@ -67,7 +67,10 @@ public class ASTParser {
                 return nextComparison();
 
             default:
-                throw new UnexpectedTokenException("OPERATION", token);
+                throw new UnexpectedTokenException(
+                        String.format("%s or %s or %s", TokenType.OPEN_BRACKET, TokenType.VARIABLE, TokenType.CONSTANT),
+                        token
+                );
         }
     }
 
