@@ -7,29 +7,28 @@ public class Interval {
     public static final int NEGATIVE_INFINITY = Integer.MIN_VALUE;
     public static final int POSITIVE_INFINITY = Integer.MAX_VALUE;
 
-    private final int start;
-    private final int end;
+    private final int lower;
+    private final int upper;
 
     public boolean isEmpty() {
-        if (start > end) return true;
-        return start == end - 1;
+        return lower > upper;
     }
 
     public boolean isFull() {
-        return start == NEGATIVE_INFINITY && end == POSITIVE_INFINITY;
+        return lower == NEGATIVE_INFINITY && upper == POSITIVE_INFINITY;
     }
 
     public Interval union(Interval other) {
         return new Interval(
-                Math.min(this.start, other.start),
-                Math.max(this.end, other.end)
+                Math.min(this.lower, other.lower),
+                Math.max(this.upper, other.upper)
         );
     }
 
     public Interval intersect(Interval other) {
         return new Interval(
-                Math.max(this.start, other.start),
-                Math.min(this.end, other.end)
+                Math.max(this.lower, other.lower),
+                Math.min(this.upper, other.upper)
         );
     }
 }

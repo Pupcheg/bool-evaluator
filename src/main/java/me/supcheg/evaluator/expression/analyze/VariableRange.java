@@ -2,12 +2,13 @@ package me.supcheg.evaluator.expression.analyze;
 
 import me.supcheg.evaluator.expression.operation.BooleanOperation;
 
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.Comparator.comparingInt;
 import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
 
 public class VariableRange {
     private List<Interval> intervals = new LinkedList<>();
@@ -21,28 +22,35 @@ public class VariableRange {
     public void addInterval(Interval interval, BooleanOperation operation) {
         switch (operation) {
             case OR:
-                intervals.add(interval);
-                compact();
+                unionWith(interval);
                 break;
             case AND:
-                intersect(interval);
+                intersectWith(interval);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported operation: " + operation);
         }
     }
 
-    private void intersect(Interval interval) {
+    private void intersectWith(Interval interval) {
         intervals = intervals.stream()
                 .map(existing -> existing.intersect(interval))
                 .filter(not(Interval::isEmpty))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
-    private void compact() {
+    /**
+     * Unions all contacting intervals like
+     * <p>{@code [0, 1) and [2, 3)}<p/>
+     * <p>{@code [0, 10) and [5, 40)}<p/>
+     */
+    private void unionWith(Interval interval) {
         List<Interval> compact = new LinkedList<>();
 
-        Iterable<Interval> sortedByLower = intervals.stream().sorted(Comparator.comparingInt(Interval::getStart))::iterator;
+        Iterable<Interval> sortedByLower =
+                Stream.concat(intervals.stream(), Stream.of(interval))
+                        .sorted(comparingInt(Interval::getLower))
+                        ::iterator;
 
         for (Interval cursor : sortedByLower) {
 
@@ -52,18 +60,20 @@ public class VariableRange {
             }
 
             Interval last = compact.get(compact.size() - 1);
-            if (last.getEnd() >= cursor.getStart() - 1) {
+            if (last.getUpper() <= cursor.getLower() + 1) {
                 compact.set(compact.size() - 1, last.union(cursor));
-            } else {
-                compact.add(cursor);
+                continue;
             }
+
+            compact.add(cursor);
         }
 
         intervals = compact;
     }
 
     public boolean isAlwaysTrue() {
-        return intervals.stream().anyMatch(Interval::isFull);
+        return intervals.stream()
+                .anyMatch(Interval::isFull);
     }
 
     public boolean isAlwaysFalse() {

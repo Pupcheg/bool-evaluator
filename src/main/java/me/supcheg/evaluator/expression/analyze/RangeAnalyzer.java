@@ -59,16 +59,16 @@ public class RangeAnalyzer implements ExpressionTreeVisitor {
             case GREATER:
                 return List.of(new Interval(value + 1, Interval.POSITIVE_INFINITY));
             case LESS:
-                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value));
+                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value - 1));
             case GREATER_EQUAL:
                 return List.of(new Interval(value, Interval.POSITIVE_INFINITY));
             case LESS_EQUAL:
-                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value + 1));
+                return List.of(new Interval(Interval.NEGATIVE_INFINITY, value));
             case EQUAL:
-                return List.of(new Interval(value, value + 1));
+                return List.of(new Interval(value, value));
             case NOT_EQUAL:
                 return List.of(
-                        new Interval(Interval.NEGATIVE_INFINITY, value),
+                        new Interval(Interval.NEGATIVE_INFINITY, value - 1),
                         new Interval(value + 1, Interval.POSITIVE_INFINITY)
                 );
             default:
