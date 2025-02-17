@@ -11,11 +11,10 @@ import me.supcheg.evaluator.expression.node.RightVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
 import me.supcheg.evaluator.expression.operation.BooleanOperation;
 import me.supcheg.evaluator.expression.operation.ComparisonOperation;
-import me.supcheg.evaluator.expression.read.exception.NotEndException;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
-import me.supcheg.evaluator.expression.read.exception.UnexpectedEndException;
 import me.supcheg.evaluator.expression.read.exception.UnexpectedTokenException;
 import me.supcheg.evaluator.expression.read.token.Token;
+import me.supcheg.evaluator.expression.read.token.TokenStream;
 import me.supcheg.evaluator.expression.read.token.TokenType;
 import me.supcheg.evaluator.expression.read.token.TokenTypeConverter;
 
@@ -24,12 +23,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ASTParser {
     private final TokenTypeConverter tokenTypeConverter;
-    private final List<Token> tokens;
-    private int pos = 0;
+    private final TokenStream tokenStream;
+
+    public ASTParser(TokenTypeConverter tokenTypeConverter, List<Token> tokens) {
+        this(
+                tokenTypeConverter,
+                new TokenStream(tokens)
+        );
+    }
 
     public ExpressionTree parse() throws SyntaxException {
         LogicalNode root = parseLogicalOR();
-        assertIsEnd();
+        tokenStream.assertIsEnd();
         return new ExpressionTree(root);
     }
 
@@ -42,12 +47,12 @@ public class ASTParser {
     }
 
     private LogicalNode parseAnyLogical() throws SyntaxException {
-        Token token = peek();
+        Token token = tokenStream.peek();
         switch (token.getType()) {
             case OPEN_BRACKET:
-                next(TokenType.OPEN_BRACKET);
+                tokenStream.next(TokenType.OPEN_BRACKET);
                 LogicalNode node = parseLogicalOR();
-                next(TokenType.CLOSE_BRACKET);
+                tokenStream.next(TokenType.CLOSE_BRACKET);
                 return node;
 
             case VARIABLE:
@@ -64,7 +69,7 @@ public class ASTParser {
 
     private LogicalNode parseLogical(TokenType operator, ParseDownstream downstream) throws SyntaxException {
         LogicalNode left = downstream.parse();
-        while (isInBounds() && peek().getType() == operator) {
+        while (tokenStream.isInBounds() && tokenStream.peek().getType() == operator) {
             left = new ExpressionNode(
                     left,
                     nextBooleanOperation(),
@@ -75,7 +80,7 @@ public class ASTParser {
     }
 
     private ComparisonNode nextComparison() throws SyntaxException {
-        if (peek().getType() == TokenType.VARIABLE) {
+        if (tokenStream.peek().getType() == TokenType.VARIABLE) {
             return new LeftVariableComparisonNode(
                     nextVariable(),
                     nextComparisonOperation(),
@@ -91,12 +96,12 @@ public class ASTParser {
     }
 
     private VariableNode nextVariable() throws SyntaxException {
-        Token next = next(TokenType.VARIABLE);
+        Token next = tokenStream.next(TokenType.VARIABLE);
         return new VariableNode(next.getLexeme().charAt(0));
     }
 
     private BooleanOperation nextBooleanOperation() throws SyntaxException {
-        Token next = next();
+        Token next = tokenStream.next();
         try {
             return tokenTypeConverter.toBooleanOperation(next.getType());
         } catch (TokenTypeConverter.OperationNotFoundException ex) {
@@ -105,7 +110,7 @@ public class ASTParser {
     }
 
     private ComparisonOperation nextComparisonOperation() throws SyntaxException {
-        Token next = next();
+        Token next = tokenStream.next();
         try {
             return tokenTypeConverter.toComparisonOperation(next.getType());
         } catch (TokenTypeConverter.OperationNotFoundException ex) {
@@ -114,39 +119,8 @@ public class ASTParser {
     }
 
     private ConstantNode nextConstant() throws SyntaxException {
-        Token next = next(TokenType.CONSTANT);
+        Token next = tokenStream.next(TokenType.CONSTANT);
         return new ConstantNode(Integer.parseInt(next.getLexeme()));
-    }
-
-    private Token next(TokenType expectedType) throws SyntaxException {
-        Token token = next();
-        if (token.getType() != expectedType) {
-            throw new UnexpectedTokenException(expectedType, token);
-        }
-        return token;
-    }
-
-    private Token next() throws SyntaxException {
-        Token peek = peek();
-        pos++;
-        return peek;
-    }
-
-    private Token peek() throws SyntaxException {
-        if (!isInBounds()) {
-            throw new UnexpectedEndException();
-        }
-        return tokens.get(pos);
-    }
-
-    private boolean isInBounds() {
-        return pos < tokens.size();
-    }
-
-    private void assertIsEnd() throws SyntaxException {
-        if (pos < tokens.size()) {
-            throw new NotEndException();
-        }
     }
 
     @FunctionalInterface
