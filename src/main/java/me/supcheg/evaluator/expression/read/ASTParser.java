@@ -9,8 +9,8 @@ import me.supcheg.evaluator.expression.node.LeftVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.LogicalNode;
 import me.supcheg.evaluator.expression.node.RightVariableComparisonNode;
 import me.supcheg.evaluator.expression.node.VariableNode;
-import me.supcheg.evaluator.expression.operation.ComparisonOperation;
 import me.supcheg.evaluator.expression.operation.BooleanOperation;
+import me.supcheg.evaluator.expression.operation.ComparisonOperation;
 import me.supcheg.evaluator.expression.read.exception.NotEndException;
 import me.supcheg.evaluator.expression.read.exception.SyntaxException;
 import me.supcheg.evaluator.expression.read.exception.UnexpectedEndException;
@@ -28,37 +28,25 @@ public class ASTParser {
     private int pos = 0;
 
     public ExpressionTree parse() throws SyntaxException {
-        LogicalNode root = lookOR();
+        LogicalNode root = parseLogicalOR();
         assertIsEnd();
         return new ExpressionTree(root);
     }
 
-    private LogicalNode lookOR() throws SyntaxException {
-        LogicalNode left = lookAND();
-        while (isInBounds() && peek().getType() == TokenType.OR) {
-            BooleanOperation operation = nextBooleanOperation();
-            LogicalNode right = lookAND();
-            left = new ExpressionNode(left, operation, right);
-        }
-        return left;
+    private LogicalNode parseLogicalOR() throws SyntaxException {
+        return parseLogical(TokenType.OR, this::parseLogicalAND);
     }
 
-    private LogicalNode lookAND() throws SyntaxException {
-        LogicalNode left = lookLogical();
-        while (isInBounds() && peek().getType() == TokenType.AND) {
-            BooleanOperation operation = nextBooleanOperation();
-            LogicalNode right = lookLogical();
-            left = new ExpressionNode(left, operation, right);
-        }
-        return left;
+    private LogicalNode parseLogicalAND() throws SyntaxException {
+        return parseLogical(TokenType.AND, this::parseAnyLogical);
     }
 
-    private LogicalNode lookLogical() throws SyntaxException {
+    private LogicalNode parseAnyLogical() throws SyntaxException {
         Token token = peek();
         switch (token.getType()) {
             case OPEN_BRACKET:
                 next(TokenType.OPEN_BRACKET);
-                LogicalNode node = lookOR();
+                LogicalNode node = parseLogicalOR();
                 next(TokenType.CLOSE_BRACKET);
                 return node;
 
@@ -68,10 +56,22 @@ public class ASTParser {
 
             default:
                 throw new UnexpectedTokenException(
-                        String.format("%s or %s or %s", TokenType.OPEN_BRACKET, TokenType.VARIABLE, TokenType.CONSTANT),
+                        String.format("%s, %s or %s", TokenType.OPEN_BRACKET, TokenType.VARIABLE, TokenType.CONSTANT),
                         token
                 );
         }
+    }
+
+    private LogicalNode parseLogical(TokenType operator, ParseDownstream downstream) throws SyntaxException {
+        LogicalNode left = downstream.parse();
+        while (isInBounds() && peek().getType() == operator) {
+            left = new ExpressionNode(
+                    left,
+                    nextBooleanOperation(),
+                    downstream.parse()
+            );
+        }
+        return left;
     }
 
     private ComparisonNode nextComparison() throws SyntaxException {
@@ -100,7 +100,7 @@ public class ASTParser {
         try {
             return tokenTypeConverter.toBooleanOperation(next.getType());
         } catch (TokenTypeConverter.OperationNotFoundException ex) {
-            throw new UnexpectedTokenException("OPERATION", next);
+            throw new UnexpectedTokenException("BOOLEAN_OPERATION", next);
         }
     }
 
@@ -109,28 +109,13 @@ public class ASTParser {
         try {
             return tokenTypeConverter.toComparisonOperation(next.getType());
         } catch (TokenTypeConverter.OperationNotFoundException ex) {
-            throw new UnexpectedTokenException("OPERATION", next);
+            throw new UnexpectedTokenException("COMPARISON_OPERATION", next);
         }
     }
 
     private ConstantNode nextConstant() throws SyntaxException {
         Token next = next(TokenType.CONSTANT);
         return new ConstantNode(Integer.parseInt(next.getLexeme()));
-    }
-
-    private boolean isInBounds() {
-        return pos < tokens.size();
-    }
-
-    private void assertInBounds(int pos) throws SyntaxException {
-        if (pos > tokens.size()) {
-            throw new UnexpectedEndException();
-        }
-    }
-
-    private Token peek() throws SyntaxException {
-        assertInBounds(pos);
-        return tokens.get(pos);
     }
 
     private Token next(TokenType expectedType) throws SyntaxException {
@@ -142,13 +127,30 @@ public class ASTParser {
     }
 
     private Token next() throws SyntaxException {
-        assertInBounds(pos + 1);
-        return tokens.get(pos++);
+        Token peek = peek();
+        pos++;
+        return peek;
+    }
+
+    private Token peek() throws SyntaxException {
+        if (!isInBounds()) {
+            throw new UnexpectedEndException();
+        }
+        return tokens.get(pos);
+    }
+
+    private boolean isInBounds() {
+        return pos < tokens.size();
     }
 
     private void assertIsEnd() throws SyntaxException {
         if (pos < tokens.size()) {
             throw new NotEndException();
         }
+    }
+
+    @FunctionalInterface
+    private interface ParseDownstream {
+        LogicalNode parse() throws SyntaxException;
     }
 }
